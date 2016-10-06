@@ -170,17 +170,17 @@ XML
         it "should not allow invalid ShowCalendarInterval keys" do
           new_resource.program "/Library/scripts/call_mom.sh"
           new_resource.time_out 300
-          expect {
+          expect do
             new_resource.start_calendar_interval "Hourly" => 1
-          }.to raise_error(/Invalid key/)
+          end.to raise_error(/Invalid key/)
         end
 
         it "should not allow non-integer values" do
           new_resource.program "/Library/scripts/call_mom.sh"
           new_resource.time_out 300
-          expect {
+          expect do
             new_resource.start_calendar_interval "Hour" => "1-2"
-          }.to raise_error(/Invalid value/)
+          end.to raise_error(/Invalid value/)
         end
       end
 

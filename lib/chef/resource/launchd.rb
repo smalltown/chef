@@ -57,8 +57,11 @@ class Chef
       # will not just run on midnight of Sat and Sun, rather it will run _every_ midnight.
       property :start_calendar_interval, [Hash, Array], coerce: proc { |type|
         # Coerce into an array of hashes to make validation easier
-        array = type   if type.is_a?(Array)
-        array = [type] unless array
+        array = if type.is_a?(Array)
+                  type
+                else
+                  [type]
+                end
 
         # Check to make sure that our array only has hashes
         if array.any? { |obj| !obj.is_a?(Hash) }
