@@ -17,11 +17,22 @@
 
 require "chef/mixin/convert_to_class_name"
 
-BASE_URL = "https://docs.chef.io/chef-client/deprecations/"
+# Structured deprecations have a unique URL associated with them, which must exist before the deprecation is merged.
+# 
 class Chef
   class Deprecated
 
-    class Skeleton
+    class << self
+      include Chef::Mixin::ConvertToClassName
+
+      def create(type, message = nil)
+        Chef::Deprecated.const_get(convert_to_class_name(type.to_s)).send(:new, message)
+      end
+    end
+
+    class Base
+      BASE_URL = "https://docs.chef.io/chef-client/deprecations/"
+
       attr_accessor :message, :location
 
       def initialize(msg = nil)
@@ -43,14 +54,17 @@ class Chef
       end
 
       def target
-        "deprecations.html"
+        raise NotImplementedError, "subclasses of Chef::Deprecated::Base should define #target"
       end
     end
 
-    class JsonAutoInflate < Skeleton
+    class JsonAutoInflate < Base
       def initialize(msg = nil)
-        @message = "foo"
         super(msg)
+      end
+
+      def message
+        @message ||= "Auto inflation of JSON data is deprecated."
       end
 
       def target
@@ -58,12 +72,5 @@ class Chef
       end
     end
 
-    class << self
-      include Chef::Mixin::ConvertToClassName
-
-      def create(type, message = nil)
-        Chef::Deprecated.const_get(convert_to_class_name(type.to_s)).send(:new, message)
-      end
-    end
   end
 end
